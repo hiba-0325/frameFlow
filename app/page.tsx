@@ -6,11 +6,14 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Upload, Download } from "lucide-react"
 
 export default function ImageToVideoPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [prompt, setPrompt] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -36,6 +39,9 @@ export default function ImageToVideoPage() {
     try {
       const formData = new FormData()
       formData.append("image", selectedFile)
+      if (prompt.trim()) {
+        formData.append("prompt", prompt.trim())
+      }
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -100,6 +106,21 @@ export default function ImageToVideoPage() {
             </div>
 
             {selectedFile && <p className="text-sm text-gray-600 dark:text-gray-400">Selected: {selectedFile.name}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="prompt" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Optional Prompt
+            </Label>
+            <Textarea
+              id="prompt"
+              placeholder="Describe how you want the video to look or behave (optional)..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="min-h-[80px] resize-none"
+              maxLength={500}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">{prompt.length}/500 characters</p>
           </div>
 
           {/* Generate Button */}

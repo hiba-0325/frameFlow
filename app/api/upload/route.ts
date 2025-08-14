@@ -4,6 +4,7 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
     const file = formData.get("image") as File
+    const prompt = formData.get("prompt") as string | null
 
     if (!file) {
       return NextResponse.json({ error: "No image file provided" }, { status: 400 })
@@ -24,7 +25,11 @@ export async function POST(request: NextRequest) {
     const n8nFormData = new FormData()
     n8nFormData.append("image", file)
 
-    // Forward the image to n8n webhook
+    if (prompt && prompt.trim()) {
+      n8nFormData.append("prompt", prompt.trim())
+    }
+
+    // Forward the data to n8n webhook
     const n8nResponse = await fetch(n8nWebhookUrl, {
       method: "POST",
       body: n8nFormData,
